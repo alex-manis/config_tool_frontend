@@ -10,12 +10,12 @@ export function setTableManagers(pm, efm) {
 // Helper functions to get form values
 export function getStringValue(name) {
     const el = form.elements.namedItem(name);
-    return (el === null || el === void 0 ? void 0 : el.value) || "";
+    return el?.value || "";
 }
 // Helper function to get boolean form values
 export function getBoolValue(name) {
     const el = form.elements.namedItem(name);
-    return (el === null || el === void 0 ? void 0 : el.checked) || false;
+    return el?.checked || false;
 }
 // Collect all form data into a PublisherConfig object
 export function collectFormData() {
@@ -34,12 +34,23 @@ export function collectFormData() {
         baseConfig.publisherId = getStringValue("publisherId");
     }
     // Assemble the final form data
-    const formData = Object.assign(Object.assign(Object.assign({}, baseConfig), { aliasName: getStringValue("aliasName"), isActive: getBoolValue("isActive"), publisherDashboard: getStringValue("publisherDashboard"), monitorDashboard: getStringValue("monitorDashboard"), qaStatusDashboard: getStringValue("qaStatusDashboard"), customCss: getStringValue("customCss"), tags: getStringValue("tags").split(",").map(s => s.trim()).filter(Boolean), notes: getStringValue("notes"), pages: pagesManager.collect() }), Object.fromEntries(extraFieldsManager.collect().filter(([key]) => key)));
+    const formData = {
+        ...baseConfig,
+        aliasName: getStringValue("aliasName"),
+        isActive: getBoolValue("isActive"),
+        publisherDashboard: getStringValue("publisherDashboard"),
+        monitorDashboard: getStringValue("monitorDashboard"),
+        qaStatusDashboard: getStringValue("qaStatusDashboard"),
+        customCss: getStringValue("customCss"),
+        tags: getStringValue("tags").split(",").map(s => s.trim()).filter(Boolean),
+        notes: getStringValue("notes"),
+        pages: pagesManager.collect(),
+        ...Object.fromEntries(extraFieldsManager.collect().filter(([key]) => key)),
+    };
     return formData;
 }
 // Fill the form with data from a PublisherConfig object
 export function fillForm(data) {
-    var _a;
     editorTitleText.textContent = `Editing: ${data.aliasName}`;
     form.elements.namedItem("publisherId").readOnly = !state.isCreating;
     form.elements.namedItem("publisherId").value = data.publisherId;
@@ -49,7 +60,7 @@ export function fillForm(data) {
     form.elements.namedItem("monitorDashboard").value = data.monitorDashboard;
     form.elements.namedItem("qaStatusDashboard").value = data.qaStatusDashboard;
     form.elements.namedItem("customCss").value = data.customCss || "";
-    form.elements.namedItem("tags").value = ((_a = data.tags) === null || _a === void 0 ? void 0 : _a.join(", ")) || "";
+    form.elements.namedItem("tags").value = data.tags?.join(", ") || "";
     const allowedDomainsInput = form.elements.namedItem("allowedDomains");
     if (allowedDomainsInput) {
         if (Array.isArray(data.allowedDomains)) {

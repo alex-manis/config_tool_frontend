@@ -4,9 +4,9 @@ import { initTableManager } from "../utils/tableManager.js";
 function createPageRow(page) {
     const row = document.createElement("tr");
     row.innerHTML = `
-    <td><input type="text" value="${(page === null || page === void 0 ? void 0 : page.pageType) || ""}" required></td>
-    <td><input type="text" value="${(page === null || page === void 0 ? void 0 : page.selector) || ""}" required></td>
-    <td><input type="text" value="${(page === null || page === void 0 ? void 0 : page.position) || ""}" required></td>
+    <td><input type="text" value="${page?.pageType || ""}" required></td>
+    <td><input type="text" value="${page?.selector || ""}" required></td>
+    <td><input type="text" value="${page?.position || ""}" required></td>
     <td><button type="button" class="button remove-btn">Remove</button></td>
   `;
     return row;

@@ -1,23 +1,12 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { BASE_URL } from "../utils/constants.js";
 // Helper function to check fetch responses
-function checkResponse(res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const data = yield res.json().catch(() => ({}));
-        if (!res.ok) {
-            const errorMessage = (data === null || data === void 0 ? void 0 : data.error) || res.statusText || `Request failed with status ${res.status}`;
-            throw new Error(errorMessage);
-        }
-        return data;
-    });
+async function checkResponse(res) {
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+        const errorMessage = data?.error || res.statusText || `Request failed with status ${res.status}`;
+        throw new Error(errorMessage);
+    }
+    return data;
 }
 // Fetch the list of publishers
 export function getPublishers() {

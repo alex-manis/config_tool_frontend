@@ -17,7 +17,7 @@ export function initExtraFieldsTable(onFormInput) {
     const manager = initTableManager({
         tableBody: extraFieldsTableBody,
         addBtn: addExtraFieldBtn,
-        createRow: (item) => createExtraFieldRow((item === null || item === void 0 ? void 0 : item[0]) || "", (item === null || item === void 0 ? void 0 : item[1]) || ""),
+        createRow: (item) => createExtraFieldRow(item?.[0] || "", item?.[1] || ""),
         collectRow: tr => {
             const keyInput = tr.querySelector(".extra-key");
             const valueInput = tr.querySelector(".extra-value");
@@ -35,5 +35,5 @@ export function initExtraFieldsTable(onFormInput) {
         });
         manager.render(extras);
     }
-    return Object.assign(Object.assign({}, manager), { renderFromConfig });
+    return { ...manager, renderFromConfig };
 }

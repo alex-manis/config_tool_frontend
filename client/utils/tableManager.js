@@ -17,10 +17,9 @@ export function initTableManager({ tableBody, addBtn, createRow, collectRow, onC
         onChange();
     });
     tableBody.addEventListener("click", e => {
-        var _a;
         const target = e.target;
         if (target.classList.contains("remove-btn")) {
-            (_a = target.closest("tr")) === null || _a === void 0 ? void 0 : _a.remove();
+            target.closest("tr")?.remove();
             onChange();
         }
     });
@@ -48,7 +47,7 @@ export function parseValue(value) {
             if (Array.isArray(arr))
                 return arr.map(String);
         }
-        catch (_a) {
+        catch {
             // Not a valid JSON array, fall through to other checks
         }
     }

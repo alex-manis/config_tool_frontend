@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { getPublisher } from "../api/publishers.js";
 import { hideJsonViewer } from "../components/JsonDiffViewer.js";
 import { state, resetFormState, hasUnsavedChanges } from "../state/appState.js";
@@ -21,18 +12,16 @@ function deselectCurrentPublisher() {
     }
 }
 // Handle selecting an existing publisher for editing
-export function onSelectPublisher(file) {
-    return __awaiter(this, void 0, void 0, function* () {
-        state.isCreating = false;
-        state.currentFilename = file;
-        state.currentPublisher = yield getPublisher(state.currentFilename);
-        state.originalPublisherData = JSON.parse(JSON.stringify(state.currentPublisher));
-        fillForm(state.currentPublisher);
-        form.querySelectorAll(".invalid").forEach(el => el.classList.remove("invalid"));
-        hideJsonViewer();
-        resetFormState();
-        updateEditorUIVisibility("editing");
-    });
+export async function onSelectPublisher(file) {
+    state.isCreating = false;
+    state.currentFilename = file;
+    state.currentPublisher = await getPublisher(state.currentFilename);
+    state.originalPublisherData = JSON.parse(JSON.stringify(state.currentPublisher));
+    fillForm(state.currentPublisher);
+    form.querySelectorAll(".invalid").forEach(el => el.classList.remove("invalid"));
+    hideJsonViewer();
+    resetFormState();
+    updateEditorUIVisibility("editing");
 }
 // Start creating a new publisher
 export function onStartCreatingPublisher() {

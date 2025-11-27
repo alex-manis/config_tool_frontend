@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { createPublisher, deletePublisher, getPublishers, savePublisher } from "./api/publishers.js";
 import { computeDiffHTML, hideJsonViewer, showJsonViewer } from "./components/JsonDiffViewer.js";
 import { initExtraFieldsTable } from "./components/ExtraFieldsTable.js";
@@ -34,21 +25,19 @@ function handleFormInput() {
 // Utility function to add a delay
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 // Wrap async operations with loading spinner and error handling
-function withLoading(requestFn, errorMessage) {
-    return __awaiter(this, void 0, void 0, function* () {
-        showLoader();
-        try {
-            yield Promise.all([requestFn(), delay(300)]);
+async function withLoading(requestFn, errorMessage) {
+    showLoader();
+    try {
+        await Promise.all([requestFn(), delay(300)]);
+    }
+    catch (error) {
+        if (errorMessage) {
+            handleError(errorMessage, error);
         }
-        catch (error) {
-            if (errorMessage) {
-                handleError(errorMessage, error);
-            }
-        }
-        finally {
-            hideLoader();
-        }
-    });
+    }
+    finally {
+        hideLoader();
+    }
 }
 // Initialize all event listeners for the application
 export function initializeEventListeners() {
@@ -79,7 +68,7 @@ export function initializeEventListeners() {
         });
     });
     // Handle selecting a publisher from the list
-    publisherListEl.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
+    publisherListEl.addEventListener("click", async (e) => {
         const target = e.target;
         if (target.tagName !== "LI" || !target.dataset.file)
             return;
@@ -93,7 +82,7 @@ export function initializeEventListeners() {
         }
         target.classList.add("publisher-list__item--selected");
         withLoading(() => onSelectPublisher(selectedFile), `Could not load data for ${selectedFile}. The file may be missing or corrupted.`);
-    }));
+    });
     // View JSON diff button functionality
     viewJsonBtn.addEventListener("click", () => {
         if (jsonViewer.style.display === "block") {
@@ -108,20 +97,18 @@ export function initializeEventListeners() {
         }
     });
     // Refresh the publisher list and optionally select a publisher
-    function refreshPublisherList(selectedFilename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            state.allPublishers = yield getPublishers();
-            renderPublisherList(state.allPublishers);
-            if (selectedFilename) {
-                yield onSelectPublisher(selectedFilename);
-            }
-            else {
-                resetEditorView();
-                state.currentPublisher = null;
-                state.currentFilename = "";
-                state.isCreating = false;
-            }
-        });
+    async function refreshPublisherList(selectedFilename) {
+        state.allPublishers = await getPublishers();
+        renderPublisherList(state.allPublishers);
+        if (selectedFilename) {
+            await onSelectPublisher(selectedFilename);
+        }
+        else {
+            resetEditorView();
+            state.currentPublisher = null;
+            state.currentFilename = "";
+            state.isCreating = false;
+        }
     }
     // Create new publisher button functionality
     const createNewHandler = () => {
@@ -141,40 +128,39 @@ export function initializeEventListeners() {
     appTitle.addEventListener("click", resetEditorView);
     cancelBtn.addEventListener("click", resetEditorView);
     // Delete button functionality
-    deleteBtn.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
-        var _a;
+    deleteBtn.addEventListener("click", async () => {
         if (state.isCreating || !state.currentFilename)
             return;
-        if (!confirm(`Are you sure you want to delete ${(_a = state.currentPublisher) === null || _a === void 0 ? void 0 : _a.aliasName}? This cannot be undone.`)) {
+        if (!confirm(`Are you sure you want to delete ${state.currentPublisher?.aliasName}? This cannot be undone.`)) {
             return;
         }
-        withLoading(() => __awaiter(this, void 0, void 0, function* () {
-            yield deletePublisher(state.currentFilename);
+        withLoading(async () => {
+            await deletePublisher(state.currentFilename);
             alert("Publisher deleted successfully.");
-            yield refreshPublisherList();
-        }), "Error deleting publisher.");
-    }));
+            await refreshPublisherList();
+        }, "Error deleting publisher.");
+    });
     // Save button functionality
-    saveBtn.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
+    saveBtn.addEventListener("click", async () => {
         if (!form.reportValidity())
             return;
         const data = collectFormData();
         if (!data)
             return;
-        withLoading(() => __awaiter(this, void 0, void 0, function* () {
+        withLoading(async () => {
             let newFilename;
             if (state.isCreating) {
-                const result = yield createPublisher(data);
+                const result = await createPublisher(data);
                 newFilename = result.newFilename;
             }
             else {
-                const result = yield savePublisher(state.currentFilename, data);
+                const result = await savePublisher(state.currentFilename, data);
                 newFilename = result.newFilename;
             }
             alert("Publisher saved!");
-            yield refreshPublisherList(newFilename);
-        }), "Error saving publisher.");
-    }));
+            await refreshPublisherList(newFilename);
+        }, "Error saving publisher.");
+    });
     // Warn user of unsaved changes before leaving the page
     window.addEventListener("beforeunload", e => {
         if (hasUnsavedChanges()) {
