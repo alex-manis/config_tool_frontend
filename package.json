@@ -7,7 +7,8 @@
     "dev": "npm run build && npm run serve",
     "build": "tsc",
     "serve": "npx http-server public -p 3000 -c-1 --cors",
-    "start": "npm run build && npm run serve"
+    "start": "npm run build && npm run serve",
+    "deploy": "gh-pages -d public"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.20.0",
