@@ -1,0 +1,49 @@
+import { BASE_URL } from "../utils/constants.js";
+// Helper function to check fetch responses
+async function checkResponse(res) {
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+        const errorMessage = data?.error || res.statusText || `Request failed with status ${res.status}`;
+        throw new Error(errorMessage);
+    }
+    return data;
+}
+// Fetch the list of publishers
+export function getPublishers() {
+    return fetch(`${BASE_URL}/publishers`)
+        .then((checkResponse))
+        .then(data => data.publishers || []);
+}
+// Fetch a single publisher by filename
+export function getPublisher(filename) {
+    return fetch(`${BASE_URL}/publisher/${filename}`).then(res => checkResponse(res));
+}
+// Create a new publisher
+export function createPublisher(data) {
+    const filename = `${data.publisherId}.json`;
+    return fetch(`${BASE_URL}/publisher/${filename}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data, null, 2),
+    })
+        .then(checkResponse)
+        .then(() => ({ newFilename: filename }));
+}
+// Update an existing publisher
+export function savePublisher(filename, data) {
+    return fetch(`${BASE_URL}/publisher/${filename}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data, null, 2),
+    })
+        .then(checkResponse)
+        .then(() => ({ newFilename: filename }));
+}
+// Delete a publisher by filename
+export function deletePublisher(filename) {
+    return fetch(`${BASE_URL}/publisher/${filename}`, {
+        method: "DELETE",
+    })
+        .then(checkResponse)
+        .then(() => undefined);
+}

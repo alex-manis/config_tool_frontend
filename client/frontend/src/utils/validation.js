@@ -1,4 +1,4 @@
-import { form, saveBtn } from "./dom.js";
+import { form, saveBtn } from "../utils/dom.js";
 // Validate the form and highlight invalid fields
 export function validateForm() {
     let isValid = true;
